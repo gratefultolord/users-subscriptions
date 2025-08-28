@@ -1,0 +1,296 @@
+definitions:
+  request.SubscriptionRequest:
+    properties:
+      end_date:
+        example: 12-2025
+        type: string
+      price:
+        example: 1000
+        type: integer
+      service_name:
+        example: Yandex Plus
+        type: string
+      start_date:
+        example: 06-2025
+        type: string
+      user_id:
+        example: bac8ff49-1681-445c-941b-c000f2fc8ac0
+        type: string
+    required:
+    - price
+    - service_name
+    - start_date
+    - user_id
+    type: object
+  response.BadRequestError:
+    properties:
+      error:
+        example: Bad Request
+        type: string
+    type: object
+  response.CreatedResponse:
+    properties:
+      result:
+        example: created
+        type: string
+    type: object
+  response.DeletedResponse:
+    properties:
+      result:
+        example: deleted
+        type: string
+    type: object
+  response.InternalServerError:
+    properties:
+      error:
+        example: Internal Server Error
+        type: string
+    type: object
+  response.NotFoundError:
+    properties:
+      error:
+        example: Not Found
+        type: string
+    type: object
+  response.SubscriptionListResponse:
+    properties:
+      subcriptions:
+        items:
+          $ref: '#/definitions/response.SubscriptionResponse'
+        type: array
+    type: object
+  response.SubscriptionResponse:
+    properties:
+      end_date:
+        example: 03-2025
+        type: string
+      id:
+        example: 1234
+        type: integer
+      price:
+        example: 1200
+        type: integer
+      service_name:
+        example: Netflix
+        type: string
+      start_date:
+        example: 02-2025
+        type: string
+      user_id:
+        example: bac8ff49-1681-445c-941b-c000f2fc8ac0
+        type: string
+    type: object
+  response.SubscriptionView:
+    properties:
+      subscription:
+        $ref: '#/definitions/response.SubscriptionResponse'
+    type: object
+  response.TotalPriceResponse:
+    properties:
+      total_price:
+        example: 12345
+        type: integer
+    type: object
+  response.UpdatedResponse:
+    properties:
+      result:
+        example: updated
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: gratefultolord@gmail.com
+    name: Shukurillo Karimov
+  title: Сервис работы с информацией о подписках
+  version: "1.0"
+paths:
+  /subscriptions:
+    get:
+      description: Возвращает список подписок с пагинацией
+      parameters:
+      - description: Количество элементов на странице (по умолчанию 10)
+        in: query
+        name: limit
+        type: integer
+      - description: Смещение (по умолчанию 0)
+        in: query
+        name: offset
+        type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.SubscriptionListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerError'
+      summary: Получить список подписок
+      tags:
+      - subscriptions
+  /subscriptions/{subscriptionId}:
+    get:
+      description: Возвращает данные одной подписки по её идентификатору
+      parameters:
+      - description: ID подписки
+        in: path
+        name: subscriptionId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.SubscriptionView'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.NotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerError'
+      summary: Получить подписку по ID
+      tags:
+      - subscriptions
+  /subscriptions/{subscriptionId}/delete:
+    delete:
+      description: Удаляет подписку по ID
+      parameters:
+      - description: ID подписки
+        in: path
+        name: subscriptionId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.DeletedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.NotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerError'
+      summary: Удалить подписку
+      tags:
+      - subscriptions
+  /subscriptions/{subscriptionId}/update:
+    put:
+      consumes:
+      - application/json
+      description: Обновляет информацию о подписке по её ID
+      parameters:
+      - description: ID подписки
+        in: path
+        name: subscriptionId
+        required: true
+        type: integer
+      - description: Данные для обновления подписки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.SubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.UpdatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.NotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerError'
+      summary: Обновить подписку
+      tags:
+      - subscriptions
+  /subscriptions/create:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет информацию о подписке
+      parameters:
+      - description: Данные подписки
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.SubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.CreatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerError'
+      summary: Добавить информацию о подписке
+      tags:
+      - subscriptions
+  /subscriptions/total:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает сумму всех подписок, опционально фильтруя по userId
+        и serviceName
+      parameters:
+      - description: ID пользователя (UUID)
+        in: query
+        name: userId
+        type: string
+      - description: Название сервиса
+        in: query
+        name: serviceName
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Сумма всех подписок
+          schema:
+            $ref: '#/definitions/response.TotalPriceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.InternalServerError'
+      summary: Получить общую стоимость подписок
+      tags:
+      - subscriptions
+swagger: "2.0"
